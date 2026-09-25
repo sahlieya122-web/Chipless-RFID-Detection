@@ -1,6 +1,4 @@
-from pathlib import Path
-
-readme = r"""# Chipless RFID Detection & Decoding in an Embedded RF Environment
+Chipless RFID Detection & Decoding in an Embedded RF Environment
 
 ![RF](https://img.shields.io/badge/Domain-RF%20%26%20Microwave-blue)
 ![Signal Processing](https://img.shields.io/badge/Signal%20Processing-Spectral%20Entropy-green)
