@@ -46,7 +46,12 @@ The project lies at the intersection of:
 
 ## How Chipless RFID Encoding Works
 
+
 A chipless RFID reader transmits an RF signal toward the tag. The physical structure of the tag modifies and backscatters the incident wave, producing a characteristic electromagnetic signature.
+
+<p align="center">
+  <img src="assets/chipless-rfid-tag.png" width="600">
+</p>
 
 In the studied decoding approach:
 
@@ -106,6 +111,10 @@ To obtain a more adaptive detector, the project investigates **spectral entropy*
 
 The received time-domain signal is divided into temporal segments. For each segment, the normalized spectral distribution is computed and its spectral entropy is evaluated:
 
+<p align="center">
+  <img src="assets/spectral-entropy-detection.png" width="700">
+</p>
+
 \[
 H_m = -\sum_k P_m[k]\log_2(P_m[k])
 \]
@@ -132,6 +141,10 @@ After extraction from this instant:
 - the useful oscillatory response is better isolated;
 - the resonant frequencies become easier to identify;
 - the spectrogram reveals the characteristic resonator frequencies more clearly.
+  
+  <p align="center">
+  <img src="assets/extracted-signal-spectrogram.png" width="800">
+</p>
 
 ---
 
@@ -183,6 +196,10 @@ The comparison between the classical energy-based detector and the spectral-entr
 - the advantage becomes particularly relevant when the environment contains additional reflections and fluctuating interference.
 
 The project therefore demonstrated that spectral entropy is a promising approach for robust chipless RFID detection in dynamic RF environments.
+
+<p align="center">
+  <img src="assets/performance-comparison.png" width="850">
+</p>
 
 ---
 
@@ -248,31 +265,6 @@ Possible extensions include:
 
 ---
 
-## Repository Scope
-
-This repository is intended as a **public research portfolio** describing the project methodology, engineering workflow, and principal results.
-
-> **The source code is intentionally not published in this repository.**
-
-The public repository can contain selected figures, diagrams, presentation material, and result visualizations while keeping the implementation private.
-
-A recommended structure is:
-
-```text
-Chipless-RFID-Detection/
-│
-├── README.md
-├── assets/
-│   ├── chipless-rfid-principle.png
-│   ├── spectral-entropy-detection.png
-│   ├── extracted-signal.png
-│   └── performance-comparison.png
-│
-└── docs/
-    └── presentation.pdf
-```
-
----
 
 ## Author
 
