@@ -1,124 +1,112 @@
-# Chipless RFID Detection & Decoding in an Embedded RF Environment
+from pathlib import Path
+
+readme = r"""# Chipless RFID Detection & Decoding in an Embedded RF Environment
+
+![RF](https://img.shields.io/badge/Domain-RF%20%26%20Microwave-blue)
+![Signal Processing](https://img.shields.io/badge/Signal%20Processing-Spectral%20Entropy-green)
+![MATLAB](https://img.shields.io/badge/Tool-MATLAB-orange)
+![RFID](https://img.shields.io/badge/Application-Chipless%20RFID-purple)
 
 ## Overview
 
-This research project focuses on the **detection and decoding of chipless RFID tags in realistic RF environments**.
+This research project investigates **robust detection and decoding of chipless RFID tags in realistic RF environments**.
 
-Unlike conventional RFID systems, chipless RFID tags do not contain an integrated electronic chip. Instead, the information is encoded through the electromagnetic resonances of the tag structure.
+Chipless RFID tags encode information through their electromagnetic resonances rather than through an integrated electronic chip. In ideal conditions, the resonant peaks can be identified directly from the frequency response. In real environments, however, reflections, interference, noise, and the quasi-optical response of the tag structure can overlap with the useful tag signature and lead to decoding errors.
 
-The main objective of this work was to improve the robustness of tag detection and decoding in the presence of:
+The work therefore focuses on automatically identifying the useful part of the received signal before decoding the tag.
 
-- noise,
-- environmental reflections,
-- multipath effects,
-- and quasi-optical interference.
+The project compares:
 
-The project compares a **classical energy-based detection method** with a new **spectral entropy-based approach** for the adaptive estimation of the useful signal extraction instant `Tstart`.
+- a **classical energy-based detection method**;
+- a new **spectral-entropy-based detection method** for adaptive estimation of the signal extraction instant `Tstart`.
+
+The objective is to improve decoding robustness under noisy and reflective conditions.
 
 ---
 
 ## Research Context
 
-This project was carried out during 2024–2025 in collaboration with:
+The work was carried out in the context of:
 
-- **LCIS Laboratory**
-- **Grenoble INP**
-- **Université Grenoble Alpes**
+- **LCIS – Laboratoire de Conception et d'Intégration des Systèmes**
+- **Grenoble INP / Université Grenoble Alpes**
 - **IDYLICC Technology**
 
-Supervisors:
+**Project period:** 2024–2025  
+**Supervisors:** Louis Morge-Rollet and Étienne Perret
 
-- Louis Morge-Rollet
-- Étienne Perret
-
-The work is related to:
+The project lies at the intersection of:
 
 - RF and microwave systems
 - Chipless RFID
 - Signal processing
 - Embedded systems
-- RF characterization
-- Robust detection in complex environments
+- Experimental RF characterization
+- Robust detection in complex propagation environments
 
 ---
 
-## Chipless RFID Principle
+## How Chipless RFID Encoding Works
 
-A chipless RFID reader emits a radio-frequency signal toward the tag.
+A chipless RFID reader transmits an RF signal toward the tag. The physical structure of the tag modifies and backscatters the incident wave, producing a characteristic electromagnetic signature.
 
-The physical structure of the tag modifies and backscatters the incident RF signal. The returned signal contains a characteristic spectral signature that can be used to identify the tag.
+In the studied decoding approach:
 
-In the studied decoding method:
+- the useful spectrum lies approximately between **3.1 GHz and 6 GHz**;
+- the spectrum is divided into **150 MHz frequency bands**;
+- each frequency band represents one bit of the identifier;
+- presence of a resonance peak corresponds to **1**;
+- absence of a resonance peak corresponds to **0**.
 
-- the frequency range is approximately **3.1 GHz to 6 GHz**,
-- the spectrum is divided into **150 MHz bands**,
-- each band represents one bit,
-- presence of a resonance peak corresponds to `1`,
-- absence of a resonance peak corresponds to `0`.
-
-The final binary sequence represents the identifier of the tag.
+The resulting sequence of bits provides the tag identifier.
 
 ---
 
-## Main Problem
+## Main Challenge
 
-In an ideal environment, the resonant frequencies of the tag are clearly visible.
+In ideal conditions, the resonances of the tag are clearly visible.
 
-However, in real environments, the RF signal interacts with surrounding objects and reflective surfaces.
+In realistic environments, the received response also contains contributions from:
 
-This creates additional echoes and interference that can overlap with the useful tag response.
+- the quasi-optical mode of the structure;
+- multipath reflections;
+- nearby reflective objects and surfaces;
+- environmental interference;
+- additive noise.
 
-The received signal may therefore contain:
+These components can overlap with the resonator response and make the frequency signature difficult to decode.
 
-- quasi-optical interference,
-- environmental reflections,
-- additive noise,
-- useful resonances from the RFID tag.
+The central research question was therefore:
 
-These effects can significantly reduce decoding accuracy.
-
-The main research question was:
-
-> How can the useful starting instant `Tstart` be determined automatically while removing irrelevant interference and preserving the RFID tag information?
+> **How can the starting instant `Tstart` of the useful tag response be determined automatically while rejecting irrelevant interference and preserving the information required for decoding?**
 
 ---
 
-## Classical Method: Energy-Based Detection
+## Classical Approach — Energy-Based Detection
 
-The classical approach detects the maximum-energy region of the received signal.
+The classical method detects the maximum-energy region associated with the quasi-optical response.
 
-A temporal window is then selected in order to isolate the useful part of the RFID response.
+A temporal window is then selected using a predefined `Tstart` in order to isolate the useful tag response and improve visibility of the resonant peaks.
 
 ### Advantages
 
 - Simple implementation
-- Effective in low-noise environments
-- Low computational complexity
+- Effective in relatively clean environments
+- Low algorithmic complexity
 
 ### Limitations
 
-The main limitation is that `Tstart` is fixed.
+The method relies strongly on a fixed temporal reference.
 
-In real environments, RF conditions are dynamic and can vary because of:
-
-- reflections,
-- interference,
-- noise,
-- propagation changes.
-
-As a result, a fixed `Tstart` can reduce the robustness of the detection process.
+Real RF environments are dynamic: reflections, interference, propagation conditions, and noise can change from one measurement to another. A fixed `Tstart` therefore reduces robustness when the environment changes.
 
 ---
 
-## Proposed Method: Spectral Entropy Detection
+## Proposed Approach — Spectral Entropy
 
-To improve robustness, a new approach based on **spectral entropy** was investigated.
+To obtain a more adaptive detector, the project investigates **spectral entropy**.
 
-The received signal is divided into temporal segments.
-
-For each segment, the normalized spectral distribution is calculated and the spectral entropy is evaluated.
-
-The spectral entropy is defined as:
+The received time-domain signal is divided into temporal segments. For each segment, the normalized spectral distribution is computed and its spectral entropy is evaluated:
 
 \[
 H_m = -\sum_k P_m[k]\log_2(P_m[k])
@@ -126,158 +114,182 @@ H_m = -\sum_k P_m[k]\log_2(P_m[k])
 
 where:
 
-- `P_m[k]` is the normalized spectral density,
-- `H_m` represents the spectral complexity of the current segment.
+- \(P_m[k]\) is the normalized spectral density of temporal segment \(m\);
+- \(H_m\) represents the spectral complexity of that segment.
 
-A concentrated frequency distribution produces lower entropy, while a more uniform spectrum produces higher entropy.
+A more concentrated frequency distribution produces lower entropy, while a more uniform spectrum produces higher entropy.
 
-By analyzing the evolution of spectral entropy over time, it becomes possible to identify the transition between interference and the useful resonant response of the tag.
+Tracking spectral entropy over time makes it possible to identify the transition between dominant interference and the useful resonant response of the tag.
 
 ---
 
-## Adaptive Tstart Detection
+## Adaptive `Tstart` Detection
 
-In the studied example, the spectral entropy reaches a minimum at approximately **12 ns**.
+In the representative example presented during the project, a **spectral-entropy minimum appears at approximately 12 ns**.
 
-This minimum corresponds to the end of the dominant quasi-optical interference.
+This point corresponds to the end of the dominant quasi-optical interference and can therefore be used as an adaptive estimate of `Tstart`.
 
-The detected instant can therefore be used as an adaptive value of `Tstart`.
+After extraction from this instant:
 
-After extracting the signal from this instant:
-
-- the useful tag response becomes more visible,
-- resonant frequencies are easier to identify,
-- decoding becomes more robust.
+- the useful oscillatory response is better isolated;
+- the resonant frequencies become easier to identify;
+- the spectrogram reveals the characteristic resonator frequencies more clearly.
 
 ---
 
 ## Robustness Evaluation
 
-The proposed method was evaluated under several RF scenarios.
+The method was evaluated under progressively more difficult simulated RF environments.
 
-### Case 1
+### Test scenarios
 
-Quasi-optical interference + noise
+1. Quasi-optical interference + noise
+2. Quasi-optical interference + 1 reflection + noise
+3. Quasi-optical interference + 2 reflections + noise
+4. Quasi-optical interference + 3 reflections + noise
 
-### Case 2
+For each scenario, the workflow included:
 
-Quasi-optical interference + 1 reflection + noise
-
-### Case 3
-
-Quasi-optical interference + 2 reflections + noise
-
-### Case 4
-
-Quasi-optical interference + 3 reflections + noise
-
-For each case, the workflow included:
-
-1. generation of the received signal,
-2. addition of noise and reflections,
-3. spectral entropy calculation,
-4. adaptive `Tstart` detection,
-5. extraction of the useful signal,
-6. frequency-domain analysis,
-7. RFID tag decoding.
+1. construction of the received signal;
+2. addition of environmental interference and noise;
+3. spectral-entropy computation;
+4. adaptive `Tstart` estimation;
+5. extraction of the useful signal;
+6. frequency-domain analysis;
+7. tag decoding.
 
 ---
 
 ## Large-Scale Validation
 
-To evaluate the generalization capability of the proposed approach, the method was tested using **1,000 randomly generated RFID identifiers**.
+To evaluate whether the method generalizes beyond a single tag configuration, the approach was tested using **1,000 randomly generated tag identifiers**.
 
-The analysis investigated:
+The analysis studied the behavior of:
 
-- minimum spectral entropy,
-- time position of the entropy minimum,
-- influence of SNR,
-- influence of reflections,
-- decoding performance.
+- the minimum spectral-entropy value;
+- the temporal position of the entropy minimum;
+- the influence of SNR;
+- the influence of additional reflections;
+- the resulting tag-decoding performance.
 
 ---
 
 ## Results
 
-The comparison between the classical energy-based detection method and the spectral entropy method showed that the spectral entropy approach provides better robustness in noisy and reflective environments.
+The comparison between the classical energy-based detector and the spectral-entropy detector showed that:
 
-The proposed method:
+- spectral entropy provides an **adaptive estimate of `Tstart`**;
+- the useful tag response can be isolated more reliably in the presence of interference;
+- resonant-frequency information remains visible after signal extraction;
+- the proposed approach provides **higher decoding performance than the energy-based method across the evaluated noisy and reflective scenarios**;
+- the advantage becomes particularly relevant when the environment contains additional reflections and fluctuating interference.
 
-- automatically adapts the value of `Tstart`,
-- isolates the useful RFID response more effectively,
-- preserves the tag resonance information,
-- improves decoding performance,
-- performs better in environments affected by multiple reflections.
-
-The results demonstrate that spectral entropy is a promising method for chipless RFID detection in complex and dynamic RF environments.
+The project therefore demonstrated that spectral entropy is a promising approach for robust chipless RFID detection in dynamic RF environments.
 
 ---
 
-## Tools and Technologies
+## Experimental & Engineering Work
 
-- MATLAB
-- Python
-- Ansys HFSS
-- CST Studio Suite
-- Vector Network Analyzer (VNA)
-- FPGA
-- VHDL
-- Verilog
-- RF and microwave simulation
-- Signal processing
+The broader work around this project included:
+
+- RF and microwave modelling
+- Electromagnetic simulation
+- VNA-based RF measurements and characterization
+- MATLAB modelling and signal simulation
+- Time-domain and frequency-domain analysis
 - Spectral analysis
-- Spectral entropy
-- Experimental RF characterization
+- Matched-filter and entropy-based detection studies
+- Comparison of simulated and measured behavior
+- Experimental validation
+- Embedded/FPGA-oriented implementation studies
 
 ---
 
-## Skills Demonstrated
+## Tools & Technologies
 
-- RF Engineering
-- Microwave Engineering
-- Signal Processing
-- Chipless RFID
-- Electromagnetic Simulation
-- RF Measurements
-- VNA Characterization
-- Algorithm Development
-- Experimental Validation
-- MATLAB
-- Python
-- FPGA
-- Embedded Systems
+| Area | Tools / Methods |
+|---|---|
+| RF & Microwave | RF characterization, electromagnetic modelling, VNA |
+| EM Simulation | Ansys HFSS, CST Studio Suite |
+| Signal Processing | Spectral entropy, FFT, spectral analysis, filtering |
+| Numerical Analysis | MATLAB |
+| Software Validation | Python |
+| Embedded Hardware | FPGA, VHDL / Verilog |
+| Application | Chipless RFID |
+
+---
+
+## Key Skills Demonstrated
+
+- RF & microwave engineering
+- Signal processing
+- Chipless RFID systems
+- Electromagnetic simulation
+- RF measurement and characterization
+- Algorithm development
+- Experimental data analysis
+- Detection and decoding
+- Robustness analysis
+- Research methodology
+- Scientific communication
 
 ---
 
 ## Future Work
 
-A possible continuation of this work is the development of a **hybrid energy–entropy detection method**.
+A natural continuation of the project is a **hybrid energy–entropy detector** that adapts its strategy according to the measured RF environment.
 
-This approach could combine:
+Possible extensions include:
 
-- energy detection,
-- spectral entropy,
-- adaptive environmental analysis,
-- embedded real-time implementation,
-- FPGA acceleration.
+- automatic environment classification;
+- adaptive interference rejection;
+- embedded real-time implementation;
+- FPGA acceleration;
+- evaluation on broader experimental datasets;
+- joint energy/entropy decision criteria.
 
 ---
 
-## Repository Note
+## Repository Scope
 
-This repository is intended as a public presentation of the research project.
+This repository is intended as a **public research portfolio** describing the project methodology, engineering workflow, and principal results.
 
-The source code is not publicly available.
+> **The source code is intentionally not published in this repository.**
 
-Only the methodology, results, technical description and selected figures are presented for portfolio and documentation purposes.
+The public repository can contain selected figures, diagrams, presentation material, and result visualizations while keeping the implementation private.
+
+A recommended structure is:
+
+```text
+Chipless-RFID-Detection/
+│
+├── README.md
+├── assets/
+│   ├── chipless-rfid-principle.png
+│   ├── spectral-entropy-detection.png
+│   ├── extracted-signal.png
+│   └── performance-comparison.png
+│
+└── docs/
+    └── presentation.pdf
+```
 
 ---
 
 ## Author
 
-**Eya Sahli**
-
+**Eya Sahli**  
 RF, Microwave & Signal Processing Engineer
 
-Portfolio:  
-https://eya-sahli-portfolio.vercel.app
+🌐 [Engineering Portfolio](https://eya-sahli-portfolio.vercel.app)
+
+---
+
+## Note
+
+This repository presents selected academic/research results for portfolio and documentation purposes. Source code and implementation files are not included in the public version.
+"""
+
+out = Path("/mnt/data/README_Chipless_RFID_Detection.md")
+out.write_text(readme, encoding="utf-8")
+print(f"Created: {out}")
