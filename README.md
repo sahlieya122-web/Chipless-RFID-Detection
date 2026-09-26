@@ -277,6 +277,3 @@ Possible extensions include:
 This repository presents selected academic/research results for portfolio and documentation purposes. Source code and implementation files are not included in the public version.
 """
 
-out = Path("/mnt/data/README_Chipless_RFID_Detection.md")
-out.write_text(readme, encoding="utf-8")
-print(f"Created: {out}")
