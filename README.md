@@ -269,9 +269,6 @@ Possible extensions include:
 ## Author
 
 **Eya Sahli**  
-RF, Microwave & Signal Processing Engineer
-
-🌐 [Engineering Portfolio](https://eya-sahli-portfolio.vercel.app)
 
 ---
 
